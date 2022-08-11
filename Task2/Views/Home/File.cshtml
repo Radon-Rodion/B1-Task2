@@ -1,0 +1,46 @@
+﻿@model string[][]
+@{
+    ViewData["Title"] = "File";
+}
+
+<a href="/" >Back</a> <br />
+<h1>@Model[1][0]</h1>
+<h3>@Model[2][0]</h3>
+
+<table class="table">
+    <thead>
+        <tr>
+            @foreach(var headItem in Model[3])
+            {
+                <th>
+                    @headItem
+                </th>
+            }
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var row in Model.Skip(4) )
+        {
+            <tr>
+            @if(row.Length == 1)
+            {
+                <td colspan="7">
+                    <h3>
+                        @row[0]
+                    </h3>
+                </td>
+            }else
+            {
+                
+                @foreach (var item in row)
+                {
+                    <td>
+                        @item
+                    </td>
+                }
+            }
+            </tr>
+        }
+    </tbody>
+</table>
+<a href="/@Model[0][0]" download="@Model[1][0]_.xls" >Save file</a>
