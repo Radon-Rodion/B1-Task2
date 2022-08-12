@@ -1,5 +1,6 @@
 ﻿namespace Task2.Models
 {
+    //this classes are used to aggregate all balances into one object
     public class TotalInfo
     {
         public string Name { get; set; }

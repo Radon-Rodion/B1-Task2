@@ -13,19 +13,7 @@ namespace TestProject
         public void TestExelFileProcessor()
         {
             var processor = new ExcelIO();
-            var res = processor.ReadExcelFile("D:/example.xls");
-            StringBuilder builder = new StringBuilder();
-
-            foreach(var row in res)
-            {
-                foreach(var cell in row)
-                {
-                    builder.Append(cell);
-                    builder.Append("   |   ");
-                }
-                builder.Append("\r\n");
-            }
-            Assert.Fail(builder.ToString());
+            processor.ReadExcelFile("example.xls");
         }
 
         [TestMethod]
@@ -37,7 +25,7 @@ namespace TestProject
                 new string[] { "row1, col1", "row1, clo2"},
                 new string[] {"row2, col1"}
             };
-            processor.WriteExcelFile("D:\\sharp.xls", info);
+            processor.WriteExcelFile("sharp.xls", info);
         }
     }
 }

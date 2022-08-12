@@ -11,7 +11,7 @@ namespace Task2.Controllers
     {
         private IFilesProcessor _filesProcessor;
         private ApplicationDbContext _context;
-        IWebHostEnvironment _appEnvironment;
+        IWebHostEnvironment _appEnvironment; //for temp saving loaded files on server
 
         public HomeController(IFilesProcessor filesProcessor, ApplicationDbContext context, IWebHostEnvironment appEnvironment)
         {
@@ -20,26 +20,35 @@ namespace Task2.Controllers
             _appEnvironment = appEnvironment;
         }
 
+        /// <summary>
+        /// Returns array of loaded files infos (id, path, name, balance periods)
+        /// </summary>
         [HttpGet]
         public async Task<IActionResult> GetLoadedFiles()
         {
             return Json(await _filesProcessor.GetLoadedFilesAsync(_context));
         }
 
+        /// <summary>
+        /// Returns RazorPage for choosing and loading excel file
+        /// </summary>
         [HttpGet("load")]
         public IActionResult GetLoadingPage()
         {
             return View("LoadFile");
         }
 
+        /// <summary>
+        /// Loads file, saves info from it into database. 
+        /// Redirects back in case of success
+        /// </summary>
         [HttpPost("load")]
         public async Task<IActionResult> LoadFile(IFormFile uploadedFile)
         {
             if (uploadedFile != null)
             {
-                // путь к папке Files
+                // saving to directory 'Files' in directory wwwroot
                 string path = "/files/" + uploadedFile.FileName;
-                // сохраняем файл в папку files в каталоге wwwroot
                 using (var fileStream = new FileStream(_appEnvironment.WebRootPath + path, FileMode.Create))
                 {
                     await uploadedFile.CopyToAsync(fileStream);
@@ -50,6 +59,9 @@ namespace Task2.Controllers
             return BadRequest("No file attached!");
         }
 
+        /// <summary>
+        /// Returns RazorPage with table representing info from file in database
+        /// </summary>
         [HttpGet("{id}")]
         public async Task<IActionResult> GetFile(int id)
         

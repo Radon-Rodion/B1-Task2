@@ -2,7 +2,7 @@
     const response = await fetch("/api/files");
 
     if (response.ok) { // if HTTP-status is 200-299
-        // get the response body (the method explained below)
+        // get the response body
         const responseData = await response.json();
         console.log(responseData);
 
@@ -19,7 +19,7 @@ export async function loadFile(file) {
     });
 
     if (response.ok) { // if HTTP-status is 200-299
-        // get the response body (the method explained below)
+        // get the response body
         const responseData = await response.json();
         console.log(responseData);
     } else {

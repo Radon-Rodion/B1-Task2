@@ -6,6 +6,9 @@ namespace ExcelLibrary
 {
     public class ExcelIO
     {
+        /// <summary>
+        /// Runs excel and reads file with its help
+        /// </summary>
         public List<List<string>> ReadExcelFile(string fileName)
         {
             Excel.Application xlApp = new Excel.Application();
@@ -21,7 +24,7 @@ namespace ExcelLibrary
             {
                 var row = new List<string>();
 
-                for (int columnNumber = 1; columnNumber <= 7; columnNumber++)
+                for (int columnNumber = 1; columnNumber <= 7; columnNumber++) //each balance is written in 7 columns
                 {
                     if (xlRange.Cells[rowNumber, columnNumber] != null && xlRange.Cells[rowNumber, columnNumber].Value2 != null)
                     {
@@ -30,12 +33,15 @@ namespace ExcelLibrary
                 }
                 rowNumber++;
                 result.Add(row);
-                listFinished = row.First() == "БАЛАНС";
+                listFinished = row.First() == "БАЛАНС"; //list of the given format finishes with total balance
             } while(!listFinished);
 
             return result;
         }
 
+        /// <summary>
+        /// Runs excel and writes file with its help
+        /// </summary>
         public void WriteExcelFile(string fileName, string[][] info)
         {
             Excel.Application xlApp = new Excel.Application();

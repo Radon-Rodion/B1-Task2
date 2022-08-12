@@ -7,6 +7,7 @@ using Serilog.Events;
 using Task2.Data;
 using Task2.Services;
 
+//configuring serilog to save different info into different files
 Log.Logger = new LoggerConfiguration()
             .MinimumLevel.Debug()
             .WriteTo.Console()
@@ -22,9 +23,10 @@ try
     var services = builder.Services;
 
     services.AddMemoryCache();
+    //Add singleton in order to have ability to perform operations in daemon threads (before request/after response)
     services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
     services.AddSingleton<IFilesProcessor, ExelFileProcessor>();
-    services.AddReact();
+    services.AddReact(); //Frontend mixes React JS and RazorPages
     services.AddJsEngineSwitcher(options => options.DefaultEngineName = ChakraCoreJsEngine.EngineName).AddChakraCore();
 
     string connection = builder.Configuration.GetConnectionString("DefaultConnection");

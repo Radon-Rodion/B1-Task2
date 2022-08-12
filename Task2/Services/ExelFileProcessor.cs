@@ -194,17 +194,17 @@ namespace Task2.Services
 
             var singleRowArray = new string[1];
             singleRowArray[0] = loadedList.Path;
-            fileTable.Add(singleRowArray);
+            fileTable.Add(singleRowArray); //first line contains filePath
 
             singleRowArray = new string[1];
             singleRowArray[0] = loadedList.Name;
-            fileTable.Add(singleRowArray);
+            fileTable.Add(singleRowArray); //second line contains spreadsheet name (including bank name)
 
             singleRowArray = new string[1];
             singleRowArray[0] = $"за период с {loadedList.PeriodFrom.ToString("dd.MM.yyyy")} по {loadedList.PeriodFrom.ToString("dd.MM.yyyy")}";
-            fileTable.Add(singleRowArray);
+            fileTable.Add(singleRowArray); //third line contains balance period
 
-            singleRowArray = new string[7];
+            singleRowArray = new string[7]; //fourth line contains balance columns names
             singleRowArray[0] = "Б/сч";
             singleRowArray[1] = "Входящий актив";
             singleRowArray[2] = "Входящий пассив";
@@ -214,21 +214,24 @@ namespace Task2.Services
             singleRowArray[6] = "Исходящий пассив";
             fileTable.Add(singleRowArray);
 
-            InsertOperationClassesInfo(fileTable, id, context);
+            InsertOperationClassesInfo(fileTable, id, context); //then balances by categories
 
             FullListBalance fullListBalance = context.FullListsBalances.Where(listBalance => listBalance.LoadedListId == id).First();
             singleRowArray = new string[7];
             singleRowArray[0] = "БАЛАНС";
             FillBalanceRow(fullListBalance, ref singleRowArray);
-            fileTable.Add(singleRowArray);
+            fileTable.Add(singleRowArray); //and total balance info
 
             return fileTable.ToArray();
         }
 
+        /// <summary>
+        /// Reads info from cells in row and writes it into balanceEntity
+        /// </summary>
         private void FillBalance(IBalance balanceEntity, List<string> row)
         {
             int columnIndex = 0;
-            foreach(var cell in row.Skip(1))
+            foreach(var cell in row.Skip(1)) //skip first cell with balance name
             {
                 var numberFromCell = ToDouble(cell);
                 switch (columnIndex)
@@ -261,9 +264,9 @@ namespace Task2.Services
             ExcelIO excelIO = new ExcelIO();
             var data = excelIO.ReadExcelFile(fileName);
 
-            var accountRegex = new Regex("^\\d{4}$");
-            var accountGroupRegex = new Regex("^\\d{2}$");
-            var dateRegex = new Regex("\\d{2}[.]\\d{2}[.]\\d{4}");
+            var accountRegex = new Regex("^\\d{4}$"); //four-digits number
+            var accountGroupRegex = new Regex("^\\d{2}$"); //two-digits number
+            var dateRegex = new Regex("\\d{2}[.]\\d{2}[.]\\d{4}"); //date: dd.MM.yyyy (for balance periods)
 
             var loadedList = new LoadedList()
             {
@@ -273,9 +276,9 @@ namespace Task2.Services
 
             var operationsClass = new OperationsClass();
 
-            foreach (var row in data)
+            foreach (var row in data) //checks all rows according to data in the first cell, ignores unnecessary information
             {
-                if (row.First().StartsWith("за период с"))
+                if (row.First().StartsWith("за период с")) //row with balance periods
                 {
                     var periods = dateRegex.Matches(row.First()).ToArray();
 
@@ -290,15 +293,15 @@ namespace Task2.Services
                     loadedList.PeriodTo = periodTo;
 
                     context.Add(loadedList);
-                    context.SaveChanges();
+                    context.SaveChanges(); //save context to autogenerate id for loaded file
                 }
-                if (row.First().StartsWith("КЛАСС "))
+                if (row.First().StartsWith("КЛАСС ")) //operations class name and id
                 {
                     var classInfoSubstrings = row.First().Split(' ', 4);
                     operationsClass.Id = ToInt32(classInfoSubstrings[2]);
                     operationsClass.Name = classInfoSubstrings[3];
                 }
-                if (row.First().StartsWith("ПО КЛАССУ"))
+                if (row.First().StartsWith("ПО КЛАССУ")) //operations class balance
                 {
                     var operationsClassBalance = new OperationsClassBalance()
                     {
@@ -311,7 +314,7 @@ namespace Task2.Services
                     context.Add(operationsClassBalance);
                     operationsClass = new OperationsClass();
                 }
-                if (row.First().StartsWith("БАЛАНС"))
+                if (row.First().StartsWith("БАЛАНС")) //total balance
                 {
                     var fullListBalance = new FullListBalance()
                     {
@@ -319,9 +322,9 @@ namespace Task2.Services
                     };
                     FillBalance(fullListBalance, row);
                     context.Add(fullListBalance);
-                    await context.SaveChangesAsync();
+                    await context.SaveChangesAsync(); //save context because list must finish
                 }
-                if (accountGroupRegex.IsMatch(row.First()))
+                if (accountGroupRegex.IsMatch(row.First())) //account group balance
                 {
                     var accountGroup = new AccountGroup()
                     {
@@ -338,7 +341,7 @@ namespace Task2.Services
 
                     context.Add(accountGroupBalance);
                 }
-                if (accountRegex.IsMatch(row.First()))
+                if (accountRegex.IsMatch(row.First())) //single account balance
                 {
                     var account = new Account()
                     {
